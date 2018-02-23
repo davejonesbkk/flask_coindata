@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+	<h2>The Coin Data Page</h2>
+
+	{% for c,d in coindata.items() %}
+		<li><h3>{{ c }} {{ d }}</h3>
+	{% endfor %}
+
+{% endblock %} 

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+	<h2>The Index Page</h2>
+
+	{% for price in prices %}
+		<li><h3>{{ price.coin }}</h3>
+	{% endfor %}
+
+{% endblock %}
+
+
+
