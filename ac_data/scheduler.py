@@ -14,7 +14,7 @@ def initialize():
 	scheduler.start()
 	scheduler.add_job(
 		func=get_coin_data,
-		trigger=IntervalTrigger(seconds=600),
+		trigger=IntervalTrigger(seconds=100),
 		id='printing_job',
 		name='Get current USD price of all coins in list',
 		replace_existing=True)
@@ -42,17 +42,18 @@ def get_coin_data():
 
 			with urllib.request.urlopen(endpoint) as url:
 				data = json.loads(url.read().decode())
-				print(data)
+				#print(data)
 				
 				for k,v in data.items():
 						price = v
 						coindata.append((coin,v))
 
-			db.executemany('insert into prices (coin, usd) values (?, ?)', (coindata))
+
+		db.executemany('insert into prices (coin, usd) values (?, ?)', (coindata))
 
 		db.commit()
 
-		print(coindata)
+		#print(coindata)
 
 		return(coindata)
 

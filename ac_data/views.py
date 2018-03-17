@@ -24,7 +24,7 @@ def index():
 def coindata():
 
 	
-	get_coin_data()
+	coindata = get_coin_data()
 
 	return render_template('coindata.html', coindata=coindata)
 
