@@ -1,40 +1,37 @@
-import sqlite3, os
 
-from ac_data import app
+from flask import Flask 
+from flask_sqlalchemy import SQLAlchemy 
 
-from flask import g 
+from datetime import datetime
 
-app.config.update(dict(
-	DATABASE=os.path.join(app.root_path, 'coindata.db'),
-	SECRET_KEY='FuSNU+aa/OTCzmkyYCJsOvrUnacSalu5XTZ7tQp+gU7Ar0giKy',
-	USERNAME='admin',
-	PASSWORD='default'
-))
+from ac_data import app 
 
-app.config.from_envvar('AC_DATA_SETTINGS', silent=True)
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/coindatatest.db'
+db = SQLAlchemy(app)
 
-def connect_db():
-	rv = sqlite3.connect(app.config['DATABASE'])
-	rv.row_factory = sqlite3.Row 
-	return rv 
+class Coin(db.Model):
+	name = db.Column(db.String, primary_key = True)
 
-def init_db():
-	db = get_db()
-	with app.open_resource('schema.sql', mode='r') as f:
-		db.cursor().executescript(f.read())
-	db.commit()
+	def __repr__(self):
+		return '<Coin name %r>' % self.name 
 
-@app.cli.command('initdb')
-def initdb_command():
-	init_db()
-	print('Initialized the database')
+class Price(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	price = db.Column(db.Integer, nullable=False)
+	datetime = db.Column(db.DateTime, nullable=False,
+		default=datetime.utcnow)
 
-def get_db():
-	if not hasattr(g, 'sqlite_db'):
-		g.sqlite_db=connect_db()
-	return g.sqlite_db
+	coin_name = db.Column(db.String, db.ForeignKey('coin.name'),
+		nullable=False)
 
-@app.teardown_appcontext
-def close_db(error):
-	if hasattr(g, 'sqlite_db'):
-		g.sqlite_db.close()
+	coin = db.relationship('Coin',
+		backref=db.backref('prices'))
+
+	def __repr__(self):
+		return ('<Price of %s is %d>' % (self.coin_name, self.price))
+
+
+	
+
+
